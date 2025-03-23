@@ -1,0 +1,52 @@
+# Permitir acceso a archivos estáticos
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /public/
+    
+    # Si el archivo o directorio existe, servirlo directamente
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+    
+    # En caso contrario, redirigir al index.php principal
+    RewriteRule ^ ../index.php [L]
+</IfModule>
+
+# Permitir acceso a tipos de archivos específicos
+<FilesMatch "\.(css|js|jpg|jpeg|png|gif|ico|svg|woff|woff2|ttf|eot|pdf)$">
+    Order allow,deny
+    Allow from all
+</FilesMatch>
+
+# Denegar acceso a otros tipos de archivos
+<FilesMatch "\.(php|phtml|php3|php4|php5|php7|phps|cgi|pl|shtml)$">
+    Order deny,allow
+    Deny from all
+</FilesMatch>
+
+# Compresión GZIP para mejorar rendimiento
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/x-javascript application/json
+</IfModule>
+
+# Caché del navegador
+<IfModule mod_expires.c>
+    ExpiresActive On
+    
+    # CSS y JS
+    ExpiresByType text/css "access plus 1 year"
+    ExpiresByType text/javascript "access plus 1 year"
+    ExpiresByType application/javascript "access plus 1 year"
+    
+    # Imágenes
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    
+    # Fuentes
+    ExpiresByType application/vnd.ms-fontobject "access plus 1 year"
+    ExpiresByType application/x-font-ttf "access plus 1 year"
+    ExpiresByType application/x-font-opentype "access plus 1 year"
+    ExpiresByType application/x-font-woff "access plus 1 year"
+</IfModule>

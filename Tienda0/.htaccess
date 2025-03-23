@@ -1,0 +1,101 @@
+# Protección básica del sistema
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+    
+    # Evitar acceso a directorios sensibles
+    RewriteRule ^config/ - [F,L]
+    RewriteRule ^core/ - [F,L]
+    RewriteRule ^logs/ - [F,L]
+    RewriteRule ^database/ - [F,L]
+    
+    # Redirigir todo al index.php a menos que sea un archivo o directorio existente
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ index.php [QSA,L]
+</IfModule>
+
+# Denegar acceso a archivos críticos
+<FilesMatch "^\.ht|^\.env|\.config$|\.json$|\.lock$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Deshabilitar listado de directorios
+Options -Indexes
+
+# Protección adicional para archivos sensibles
+<FilesMatch "\.(php|phtml|php3|php4|php5|php7|phps)$">
+    # Restringir los archivos PHP a solo index.php en la raíz
+    # Si no es index.php en la raíz o un archivo en /public/, denegar acceso
+    RewriteCond %{REQUEST_URI} !^/index\.php$
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule .* - [F,L]
+</FilesMatch>
+
+# Cabeceras de seguridad
+<IfModule mod_headers.c>
+    # Protección XSS
+    Header set X-XSS-Protection "1; mode=block"
+    
+    # Prevenir clickjacking
+    Header set X-Frame-Options "SAMEORIGIN"
+    
+    # Prevenir MIME-sniffing
+    Header set X-Content-Type-Options "nosniff"
+    
+    # Política de referrer
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+    
+    # Content Security Policy
+    Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data:; font-src 'self' https://cdnjs.cloudflare.com; connect-src 'self'"
+    
+    # Característica de permisos
+    Header set Feature-Policy "geolocation 'none'; microphone 'none'; camera 'none'"
+</IfModule>
+
+# Compresión GZIP para mejorar rendimiento
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/x-javascript application/json
+</IfModule>
+
+# Caché del navegador
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresDefault "access plus 1 month"
+    
+    # CSS y JS
+    ExpiresByType text/css "access plus 1 year"
+    ExpiresByType text/javascript "access plus 1 year"
+    ExpiresByType application/javascript "access plus 1 year"
+    
+    # Imágenes
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    
+    # Fuentes
+    ExpiresByType application/vnd.ms-fontobject "access plus 1 year"
+    ExpiresByType application/x-font-ttf "access plus 1 year"
+    ExpiresByType application/x-font-opentype "access plus 1 year"
+    ExpiresByType application/x-font-woff "access plus 1 year"
+</IfModule>
+
+# Seguridad PHP
+<IfModule mod_php7.c>
+    php_flag display_errors off
+    php_flag log_errors on
+    php_flag register_globals off
+    php_flag magic_quotes_gpc off
+    php_flag allow_url_fopen off
+    php_flag allow_url_include off
+    php_value memory_limit 256M
+    php_value post_max_size 32M
+    php_value upload_max_filesize 24M
+    php_value max_execution_time 60
+    php_value max_input_time 60
+    php_value session.cookie_httponly 1
+    php_value session.cookie_secure 1
+    php_value session.use_only_cookies 1
+</IfModule>

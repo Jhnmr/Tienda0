@@ -1,0 +1,3 @@
+# Proteger directorio de configuración
+Order deny,allow
+Deny from all
