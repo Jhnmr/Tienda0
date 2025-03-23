@@ -1,7 +1,23 @@
 <?php
+// Inicializar sesión si no está iniciada
+session_start();
+
+// Incluir archivos necesarios
+require_once __DIR__ . '/includes/db.php';
+require_once __DIR__ . '/models/user.php';
+require_once __DIR__ . '/models/role.php';
+require_once __DIR__ . '/utils/helpers.php';
+require_once __DIR__ . '/utils/validators.php';
 require_once __DIR__ . '/includes/middleware.php';
-require_once __DIR__ . '/../models/user.php';
-require_once __DIR__ . '/../models/role.php';
+require_once __DIR__ . '/controllers/userController.php';
+
+// Aplicar middleware de autenticación y permisos
+authMiddleware();
+permissionMiddleware('user_view');
+
+// Crear instancia del controlador y llamar al método index
+$controller = new userController();
+$controller->index();
 
 class userController {
     private $userModel;
@@ -19,11 +35,6 @@ class userController {
      * Lista de usuarios
      */
     public function index() {
-        // Verificar permisos
-        if (!userHasPermission('user_view')) {
-            $_SESSION['error_message'] = 'No tiene permisos para acceder a esta sección.';
-            redirect('/admin/dashboard.php');
-        }
         
         $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
         $limit = 10;

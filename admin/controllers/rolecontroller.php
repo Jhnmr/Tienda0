@@ -1,7 +1,23 @@
 <?php
-require_once __DIR__ . '/includes/middleware.php';
-require_once __DIR__ . '/../models/role.php';
-require_once __DIR__ . '/../models/permission.php';
+// Inicializar sesión si no está iniciada
+session_start();
+
+// Incluir archivos necesarios
+require_once __DIR__ . '/includes/db.php';
+require_once __DIR__ . '/models/role.php';
+require_once __DIR__ . '/models/permission.php';
+require_once __DIR__ . '/utils/helpers.php';
+require_once __DIR__ . '/utils/validators.php';
+require_once __DIR__ . '/includes/middleware.php';  // Add this line
+require_once __DIR__ . '/controllers/roleController.php';
+
+// Aplicar middleware de autenticación y permisos
+authMiddleware();
+permissionMiddleware('role_view');
+
+// Crear instancia del controlador y llamar al método index
+$controller = new roleController();
+$controller->index();
 
 class roleController {
     private $roleModel;
@@ -19,12 +35,6 @@ class roleController {
      * Lista de roles
      */
     public function index() {
-        // Verificar permisos
-        if (!userHasPermission('role_view')) {
-            $_SESSION['error_message'] = 'No tiene permisos para acceder a esta sección.';
-            redirect('/admin/dashboard.php');
-        }
-        
         $result = $this->roleModel->getAll();
         $roles = $result['success'] ? $result['roles'] : [];
         
@@ -35,11 +45,10 @@ class roleController {
      * Crear nuevo rol
      */
     public function create() {
-        // Verificar permisos
-        if (!userHasPermission('role_create')) {
-            $_SESSION['error_message'] = 'No tiene permisos para crear roles.';
-            redirect('/admin/roles.php');
-        }
+        $result = $this->roleModel->getAll();
+        $roles = $result['success'] ? $result['roles'] : [];
+        
+        include __DIR__ . '/../views/admin/roles/index.php';
         
         // Obtener permisos para el formulario
         $permissionsResult = $this->permissionModel->getAll();
@@ -98,11 +107,10 @@ class roleController {
      * Ver detalles de un rol
      */
     public function show($id) {
-        // Verificar permisos
-        if (!userHasPermission('role_view')) {
-            $_SESSION['error_message'] = 'No tiene permisos para ver roles.';
-            redirect('/admin/roles.php');
-        }
+        $result = $this->roleModel->getAll();
+        $roles = $result['success'] ? $result['roles'] : [];
+        
+        include __DIR__ . '/../views/admin/roles/index.php';
         
         $result = $this->roleModel->getById($id);
         
@@ -120,11 +128,10 @@ class roleController {
      * Editar un rol
      */
     public function edit($id) {
-        // Verificar permisos
-        if (!userHasPermission('role_edit')) {
-            $_SESSION['error_message'] = 'No tiene permisos para editar roles.';
-            redirect('/admin/roles.php');
-        }
+        $result = $this->roleModel->getAll();
+        $roles = $result['success'] ? $result['roles'] : [];
+        
+        include __DIR__ . '/../views/admin/roles/index.php';
         
         $result = $this->roleModel->getById($id);
         
@@ -196,11 +203,10 @@ class roleController {
      * Eliminar un rol
      */
     public function delete($id) {
-        // Verificar permisos
-        if (!userHasPermission('role_delete')) {
-            $_SESSION['error_message'] = 'No tiene permisos para eliminar roles.';
-            redirect('/admin/roles.php');
-        }
+        $result = $this->roleModel->getAll();
+        $roles = $result['success'] ? $result['roles'] : [];
+        
+        include __DIR__ . '/../views/admin/roles/index.php';
         
         // Confirmar eliminación
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
