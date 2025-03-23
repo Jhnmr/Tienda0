@@ -1,75 +1,83 @@
 <?php
-/**
- * Middleware de autenticación
- */
 
 /**
- * Verifica si el usuario está autenticado
+ * Middleware de autenticación
  * 
- * @return bool True si está autenticado, false si no
+ * Verifica que el usuario esté autenticado antes de
+ * permitir el acceso a rutas protegidas
  */
-function isAuthenticated() {
-    return isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
+
+// Prevenir acceso directo al archivo
+if (!defined('BASEPATH')) {
+    exit('No se permite el acceso directo al script');
 }
 
-/**
- * Middleware de autenticación
- * Verifica si el usuario está autenticado, caso contrario lo redirige al login
- * 
- * @param string $redirectTo Ruta a redirigir si no está autenticado
- */
-function authMiddleware($redirectTo = '/login') {
-    if (!isAuthenticated()) {
-        // Intentar autenticar por cookie
-        if (isset($_COOKIE['remember_token'])) {
-            $token = $_COOKIE['remember_token'];
-            
-            require_once __DIR__ . '/../models/user.php';
-            $userModel = new User();
-            $result = $userModel->authenticateByToken($token);
-            
-            if ($result['success']) {
-                // Establecer sesión
-                $_SESSION['user_id'] = $result['user']['id'];
-                $_SESSION['user_email'] = $result['user']['email'];
-                $_SESSION['user_name'] = $result['user']['nombres'] . ' ' . $result['user']['apellidos'];
-                $_SESSION['user_roles'] = array_column($result['user']['roles'], 'id');
-                $_SESSION['user_permissions'] = array_column($result['user']['permissions'], 'codigo');
-                
-                return; // Usuario autenticado por token
+class auth
+{
+    /**
+     * Verifica si el usuario está autenticado
+     * 
+     * @param array $params Parámetros adicionales
+     * @return mixed|null Null si está autenticado, respuesta de error en caso contrario
+     */
+    public function handle($params = [])
+    {
+        // Verificar si existe sesión de usuario
+        if (!isset($_SESSION['user_id'])) {
+            // Si es una solicitud AJAX
+            if ($this->isAjaxRequest()) {
+                header('HTTP/1.1 401 Unauthorized');
+                header('Content-Type: application/json');
+                echo json_encode([
+                    'status' => 'error',
+                    'code' => 401,
+                    'message' => 'No autenticado'
+                ]);
+                exit;
             }
-        }
-        
-        // No autenticado, redirigir al login
-        setFlashMessage('error', 'Debe iniciar sesión para acceder a esta página.');
-        redirect($redirectTo);
-        exit;
-    }
-}
 
-/**
- * Verifica si un usuario tiene un rol específico
- * 
- * @param int|array $roles ID o array de IDs de roles a verificar
- * @return bool True si tiene el rol, false si no
- */
-function userHasRole($roles) {
-    if (!isAuthenticated()) {
-        return false;
+            // Guardar URL solicitada para redirección después del login
+            $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
+
+            // Redireccionar a login
+            redirect('login');
+        }
+
+        // Verificar si la cuenta está activa
+        if (isset($_SESSION['user_status']) && $_SESSION['user_status'] != USUARIO_ACTIVO) {
+            // Cerrar sesión
+            session_destroy();
+
+            // Redireccionar con mensaje
+            setFlash('error_message', 'Tu cuenta ha sido desactivada. Por favor, contacta al administrador.');
+            redirect('login');
+        }
+
+        // Si está autenticado, seguir con la siguiente acción
+        return null;
     }
-    
-    // Si no se pasan roles para verificar, consideramos que cualquier usuario autenticado tiene acceso
-    if (empty($roles)) {
-        return true;
+
+    /**
+     * Comprueba si la solicitud actual es AJAX
+     * 
+     * @return boolean
+     */
+    private function isAjaxRequest()
+    {
+        return !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+            strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
     }
-    
-    // Convertimos a array si es un solo rol
-    if (!is_array($roles)) {
-        $roles = [$roles];
+
+
+
+        /**
+     * Middleware de autenticación
+     */
+    function authMiddleware() {
+        if (!isAuthenticated()) {
+            setFlash('error', 'Debe iniciar sesión para acceder a esta página.');
+            redirect('/login');
+            exit;
+        }
     }
-    
-    // Verificamos si el usuario tiene alguno de los roles requeridos
-    $userRoles = $_SESSION['user_roles'] ?? [];
-    
-    return count(array_intersect($roles, $userRoles)) > 0;
 }
