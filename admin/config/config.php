@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/middleware.php';
 // Configuración general de la aplicación
 return [
     // Configuración de la base de datos

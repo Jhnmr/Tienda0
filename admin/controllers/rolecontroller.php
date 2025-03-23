@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/middleware.php';
 require_once __DIR__ . '/../models/role.php';
 require_once __DIR__ . '/../models/permission.php';
 
