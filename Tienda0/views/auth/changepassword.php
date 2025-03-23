@@ -1,6 +1,6 @@
 <?php
 // Incluir header
-include_once __DIR__ . '/../../includes/header.php';
+include_once __DIR__ . '/../components/header.php';
 
 // Verificar autenticación
 //authMiddleware();
@@ -114,5 +114,5 @@ include_once __DIR__ . '/../../includes/header.php';
 
 <?php
 // Incluir footer
-include_once __DIR__ . '/../../includes/footer.php';
+include_once __DIR__ . '/../components/footer.php';
 ?>

@@ -1123,6 +1123,181 @@ public function changePassword($userId, $newPassword) {
     }
 }
 
+/**
+ * Obtiene un usuario por su email
+ * 
+ * @param string $email Email del usuario
+ * @return array|bool Datos del usuario o false si no existe
+ */
+public function getByEmail($email) {
+    try {
+        $stmt = $this->db->prepare("
+            SELECT id_usuario, email, password_hash, verificado
+            FROM usuario
+            WHERE email = :email
+            LIMIT 1
+        ");
+        
+        $stmt->execute([':email' => $email]);
+        
+        if ($stmt->rowCount() === 0) {
+            return false;
+        }
+        
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log('Error al obtener usuario por email: ' . $e->getMessage());
+        return false;
+    }
+}
 
+/**
+ * Obtiene el perfil de un usuario
+ * 
+ * @param int $userId ID del usuario
+ * @return array|bool Datos del perfil o false si no existe
+ */
+public function getUserProfile($userId) {
+    try {
+        $stmt = $this->db->prepare("
+            SELECT nombres, apellidos, telefono, fecha_nacimiento, genero, marketing_consent
+            FROM usuario_perfil
+            WHERE id_usuario = :id_usuario
+        ");
+        
+        $stmt->execute([':id_usuario' => $userId]);
+        
+        if ($stmt->rowCount() === 0) {
+            return false;
+        }
+        
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log('Error al obtener perfil de usuario: ' . $e->getMessage());
+        return false;
+    }
+}
+
+/**
+ * Obtiene los roles de un usuario
+ * 
+ * @param int $userId ID del usuario
+ * @return array Roles del usuario
+ */
+public function getUserRoles($userId) {
+    try {
+        $stmt = $this->db->prepare("
+            SELECT r.id_rol, r.nombre
+            FROM rol r
+            JOIN usuario_rol ur ON r.id_rol = ur.id_rol
+            WHERE ur.id_usuario = :id_usuario
+        ");
+        
+        $stmt->execute([':id_usuario' => $userId]);
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log('Error al obtener roles de usuario: ' . $e->getMessage());
+        return [];
+    }
+}
+
+/**
+ * Obtiene los permisos de un usuario
+ * 
+ * @param int $userId ID del usuario
+ * @return array Permisos del usuario
+ */
+public function getUserPermissions($userId) {
+    try {
+        $stmt = $this->db->prepare("
+            SELECT DISTINCT p.codigo, p.descripcion
+            FROM permiso p
+            JOIN rol_permiso rp ON p.id_permiso = rp.id_permiso
+            JOIN usuario_rol ur ON rp.id_rol = ur.id_rol
+            WHERE ur.id_usuario = :id_usuario
+        ");
+        
+        $stmt->execute([':id_usuario' => $userId]);
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log('Error al obtener permisos de usuario: ' . $e->getMessage());
+        return [];
+    }
+}
+
+/**
+ * Guarda un token de "recordarme"
+ * 
+ * @param int $userId ID del usuario
+ * @param string $token Token (hash)
+ * @param string $expires Fecha de expiración
+ * @return bool True si se guardó correctamente
+ */
+public function saveRememberToken($userId, $token, $expires) {
+    try {
+        // Asegurarse de que existe la tabla
+        $this->db->exec("
+            CREATE TABLE IF NOT EXISTS user_tokens (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                id_usuario INT NOT NULL,
+                token VARCHAR(255) NOT NULL,
+                tipo VARCHAR(50) NOT NULL,
+                expira DATETIME NOT NULL,
+                creado DATETIME NOT NULL,
+                INDEX (token),
+                INDEX (id_usuario, tipo)
+            )
+        ");
+        
+        // Eliminar tokens anteriores
+        $stmt = $this->db->prepare("
+            DELETE FROM user_tokens
+            WHERE id_usuario = :id_usuario AND tipo = 'remember'
+        ");
+        
+        $stmt->execute([':id_usuario' => $userId]);
+        
+        // Insertar nuevo token
+        $stmt = $this->db->prepare("
+            INSERT INTO user_tokens (id_usuario, token, tipo, expira, creado)
+            VALUES (:id_usuario, :token, 'remember', :expira, NOW())
+        ");
+        
+        $stmt->execute([
+            ':id_usuario' => $userId,
+            ':token' => $token,
+            ':expira' => $expires
+        ]);
+        
+        return true;
+    } catch (PDOException $e) {
+        error_log('Error al guardar token de remember: ' . $e->getMessage());
+        return false;
+    }
+}
+
+/**
+ * Elimina un token de "recordarme"
+ * 
+ * @param string $token Token (hash)
+ * @return bool True si se eliminó correctamente
+ */
+public function deleteRememberToken($token) {
+    try {
+        $stmt = $this->db->prepare("
+            DELETE FROM user_tokens
+            WHERE token = :token AND tipo = 'remember'
+        ");
+        
+        $stmt->execute([':token' => $token]);
+        
+        return true;
+    } catch (PDOException $e) {
+        error_log('Error al eliminar token de remember: ' . $e->getMessage());
+        return false;
+    }
+}
 
 }

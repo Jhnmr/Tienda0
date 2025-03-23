@@ -38,14 +38,24 @@ foreach ($requiredExtensions as $extension) {
 // Establecer encoding de salida UTF-8
 header('Content-Type: text/html; charset=UTF-8');
 
+// Iniciar sesión antes de cargar cualquier otra cosa
+session_start();
+
+// Cargar constantes desde constants.php
+require_once __DIR__ . '/config/constants.php';
+
 // Cargar archivos de sistema
 require_once __DIR__ . '/core/router.php';
 require_once __DIR__ . '/core/app.php';
 
-// Autocargador de clases básico (complementará a Composer cuando esté configurado)
+// Cargar funciones de ayuda
+require_once __DIR__ . '/utils/helpers.php';
+
+// Autocargador de clases básico
 spl_autoload_register(function ($className) {
     // Convertir namespace separadores a separadores de directorio
     $className = str_replace('\\', DIRECTORY_SEPARATOR, $className);
+    $className = strtolower($className);
     
     // Buscar en directorios principales
     $directories = [
@@ -72,16 +82,40 @@ if (file_exists(__DIR__ . '/vendor/autoload.php')) {
     require_once __DIR__ . '/vendor/autoload.php';
 }
 
-// Incluir archivo de utilidades si existe
-if (file_exists(__DIR__ . '/utils/helpers.php')) {
-    require_once __DIR__ . '/utils/helpers.php';
+// Configurar manejo de errores para depuración
+function customErrorHandler($errno, $errstr, $errfile, $errline) {
+    $error = date('[Y-m-d H:i:s]') . " Error: $errstr in $errfile on line $errline";
+    error_log($error, 3, LOGSPATH . '/debug.log');
+    
+    if (ini_get('display_errors')) {
+        echo "<div style='background-color: #ffdddd; border: 1px solid #ff0000; padding: 10px; margin: 10px 0;'>";
+        echo "<strong>Error:</strong> $errstr in $errfile on line $errline";
+        echo "</div>";
+    }
+    
+    return true;
 }
+set_error_handler('customErrorHandler');
 
-// Crear instancia de la aplicación
-$app = new App();
+try {
+    // Crear instancia de la aplicación
+    $app = new App();
 
-// Configurar rutas
-require_once __DIR__ . '/config/routes.php';
+    // Cargar configuración de rutas
+    require_once CONFIGPATH . 'routes.php';
 
-// Ejecutar la aplicación
-$app->run();
+    // Ejecutar la aplicación
+    $app->run();
+} catch (Exception $e) {
+    $error = date('[Y-m-d H:i:s]') . " Exception: " . $e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine();
+    error_log($error, 3, LOGSPATH . '/error.log');
+    
+    if (ini_get('display_errors')) {
+        echo "<div style='background-color: #ffdddd; border: 1px solid #ff0000; padding: 10px; margin: 10px 0;'>";
+        echo "<strong>Exception:</strong> " . $e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine();
+        echo "</div>";
+    } else {
+        // En producción, mostrar una página de error genérica
+        include VIEWSPATH . 'errors/500.php';
+    }
+}

@@ -344,50 +344,55 @@ class app {
         require_once CONFIGPATH . 'constants.php';
     }
     
-    /**
-     * Inicia la sesión con configuraciones seguras
-     */
-    private function startSession() {
-        // Configurar opciones de sesión
-        $sessionConfig = $this->config['session'];
-        
-        // Configurar cookies de sesión
-        session_name($sessionConfig['name']);
-        
-        ini_set('session.cookie_lifetime', $sessionConfig['lifetime']);
-        ini_set('session.gc_maxlifetime', $sessionConfig['lifetime']);
-        
-        // Configurar parámetros de cookie
-        session_set_cookie_params([
-            'lifetime' => $sessionConfig['lifetime'],
-            'path' => $sessionConfig['path'],
-            'domain' => $sessionConfig['domain'],
-            'secure' => $sessionConfig['secure'],
-            'httponly' => $sessionConfig['httponly'],
-            'samesite' => $sessionConfig['samesite']
-        ]);
-        
-        // Establecer directorio de almacenamiento de sesión si está definido
-        if ($sessionConfig['save_path'] !== null) {
-            session_save_path($sessionConfig['save_path']);
-        }
-        
-        // Iniciar sesión
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-        
-        // Regenerar ID de sesión periódicamente para prevenir ataques de fijación de sesión
-        if (!isset($_SESSION['last_regeneration'])) {
+   /**
+ * Inicia la sesión con configuraciones seguras
+ */
+private function startSession() {
+    // Si la sesión ya está activa, no intentar cambiar configuraciones
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        return;
+    }
+    
+    // Configurar opciones de sesión
+    $sessionConfig = $this->config['session'];
+    
+    // Configurar nombre de sesión
+    session_name($sessionConfig['name']);
+    
+    ini_set('session.cookie_lifetime', $sessionConfig['lifetime']);
+    ini_set('session.gc_maxlifetime', $sessionConfig['lifetime']);
+    
+    // Configurar parámetros de cookie
+    session_set_cookie_params([
+        'lifetime' => $sessionConfig['lifetime'],
+        'path' => $sessionConfig['path'],
+        'domain' => $sessionConfig['domain'],
+        'secure' => $sessionConfig['secure'],
+        'httponly' => $sessionConfig['httponly'],
+        'samesite' => $sessionConfig['samesite']
+    ]);
+    
+    // Establecer directorio de almacenamiento de sesión si está definido
+    if ($sessionConfig['save_path'] !== null) {
+        session_save_path($sessionConfig['save_path']);
+    }
+    
+    // Iniciar sesión si aún no está iniciada
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    
+    // Regenerar ID de sesión periódicamente para prevenir ataques de fijación de sesión
+    if (!isset($_SESSION['last_regeneration'])) {
+        $this->regenerateSession();
+    } else {
+        // Regenerar ID de sesión cada 30 minutos
+        $regenerationTime = 30 * 60; // 30 minutos en segundos
+        if (time() - $_SESSION['last_regeneration'] > $regenerationTime) {
             $this->regenerateSession();
-        } else {
-            // Regenerar ID de sesión cada 30 minutos
-            $regenerationTime = 30 * 60; // 30 minutos en segundos
-            if (time() - $_SESSION['last_regeneration'] > $regenerationTime) {
-                $this->regenerateSession();
-            }
         }
     }
+}
     
     /**
      * Regenera el ID de sesión
