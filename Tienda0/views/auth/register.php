@@ -1,152 +1,258 @@
 <?php
+// Definir título de la página
+$pageTitle = 'Registro de Usuario';
+
 // Incluir header
-include_once __DIR__ . '/../components/header.php';
+include_once __DIR__ . '/../../views/components/header.php';
 
 // Recuperar datos del formulario si hay error
 $formData = $_SESSION['form_data'] ?? [];
 unset($_SESSION['form_data']);
 ?>
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">Registro de Usuario</h4>
-                </div>
-                <div class="card-body">
+<section class="section">
+    <div class="container">
+        <div class="columns is-centered">
+            <div class="column is-two-thirds">
+                <div class="box">
+                    <h1 class="title has-text-centered has-text-primary">Registro de Usuario</h1>
+                    
                     <?php if (isset($_SESSION['error_message'])): ?>
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <div class="notification is-danger is-light">
+                            <button class="delete"></button>
                             <?php 
                                 echo $_SESSION['error_message'];
                                 unset($_SESSION['error_message']);
                             ?>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     <?php endif; ?>
                     
-                    <form action="/register.php" method="POST" class="needs-validation" novalidate>
+                    <form action="/register" method="POST" id="register-form" novalidate>
                         <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
                         
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="nombres" class="form-label">Nombres</label>
-                                <input type="text" class="form-control" id="nombres" name="nombres" 
-                                       value="<?php echo e($formData['nombres'] ?? ''); ?>" required>
-                                <div class="invalid-feedback">
-                                    Por favor, ingrese sus nombres.
+                        <div class="columns">
+                            <div class="column">
+                                <div class="field">
+                                    <label class="label" for="nombres">Nombres</label>
+                                    <div class="control has-icons-left">
+                                        <input class="input" type="text" id="nombres" name="nombres" 
+                                               value="<?php echo e($formData['nombres'] ?? ''); ?>" required>
+                                        <span class="icon is-small is-left">
+                                            <i class="fas fa-user"></i>
+                                        </span>
+                                    </div>
+                                    <p class="help is-danger nombres-error" style="display: none;">Por favor, ingrese sus nombres.</p>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <label for="apellidos" class="form-label">Apellidos</label>
-                                <input type="text" class="form-control" id="apellidos" name="apellidos" 
-                                       value="<?php echo e($formData['apellidos'] ?? ''); ?>" required>
-                                <div class="invalid-feedback">
-                                    Por favor, ingrese sus apellidos.
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="email" class="form-label">Correo Electrónico</label>
-                            <input type="email" class="form-control" id="email" name="email" 
-                                   value="<?php echo e($formData['email'] ?? ''); ?>" required>
-                            <div class="invalid-feedback">
-                                Por favor, ingrese un correo electrónico válido.
-                            </div>
-                        </div>
-                        
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="password" class="form-label">Contraseña</label>
-                                <input type="password" class="form-control" id="password" name="password" required>
-                                <div class="invalid-feedback">
-                                    Por favor, ingrese una contraseña.
-                                </div>
-                                <small class="form-text text-muted">
-                                    La contraseña debe tener al menos 8 caracteres, incluir mayúsculas, 
-                                    minúsculas, números y caracteres especiales.
-                                </small>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="confirm_password" class="form-label">Confirmar Contraseña</label>
-                                <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
-                                <div class="invalid-feedback">
-                                    Por favor, confirme su contraseña.
+                            
+                            <div class="column">
+                                <div class="field">
+                                    <label class="label" for="apellidos">Apellidos</label>
+                                    <div class="control has-icons-left">
+                                        <input class="input" type="text" id="apellidos" name="apellidos" 
+                                               value="<?php echo e($formData['apellidos'] ?? ''); ?>" required>
+                                        <span class="icon is-small is-left">
+                                            <i class="fas fa-user"></i>
+                                        </span>
+                                    </div>
+                                    <p class="help is-danger apellidos-error" style="display: none;">Por favor, ingrese sus apellidos.</p>
                                 </div>
                             </div>
                         </div>
                         
-                        <div class="mb-3 form-check">
-                            <input type="checkbox" class="form-check-input" id="terms" name="terms" required>
-                            <label class="form-check-label" for="terms">
-                                Acepto los <a href="/terms.php" target="_blank">términos y condiciones</a>
-                            </label>
-                            <div class="invalid-feedback">
-                                Debe aceptar los términos y condiciones para continuar.
+                        <div class="field">
+                            <label class="label" for="email">Correo Electrónico</label>
+                            <div class="control has-icons-left">
+                                <input class="input" type="email" id="email" name="email" 
+                                       value="<?php echo e($formData['email'] ?? ''); ?>" required>
+                                <span class="icon is-small is-left">
+                                    <i class="fas fa-envelope"></i>
+                                </span>
+                            </div>
+                            <p class="help is-danger email-error" style="display: none;">Por favor, ingrese un correo electrónico válido.</p>
+                        </div>
+                        
+                        <div class="columns">
+                            <div class="column">
+                                <div class="field">
+                                    <label class="label" for="password">Contraseña</label>
+                                    <div class="control has-icons-left">
+                                        <input class="input" type="password" id="password" name="password" required>
+                                        <span class="icon is-small is-left">
+                                            <i class="fas fa-lock"></i>
+                                        </span>
+                                    </div>
+                                    <p class="help is-danger password-error" style="display: none;">La contraseña debe tener al menos 8 caracteres.</p>
+                                    <p class="help">
+                                        La contraseña debe tener al menos 8 caracteres, incluir mayúsculas, 
+                                        minúsculas, números y caracteres especiales.
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div class="column">
+                                <div class="field">
+                                    <label class="label" for="confirm_password">Confirmar Contraseña</label>
+                                    <div class="control has-icons-left">
+                                        <input class="input" type="password" id="confirm_password" name="confirm_password" required>
+                                        <span class="icon is-small is-left">
+                                            <i class="fas fa-lock"></i>
+                                        </span>
+                                    </div>
+                                    <p class="help is-danger confirm-password-error" style="display: none;">Las contraseñas no coinciden.</p>
+                                </div>
                             </div>
                         </div>
                         
-                        <div class="mb-3 form-check">
-                            <input type="checkbox" class="form-check-input" id="marketing_consent" name="marketing_consent" 
-                                  <?php echo isset($formData['marketing_consent']) ? 'checked' : ''; ?>>
-                            <label class="form-check-label" for="marketing_consent">
-                                Deseo recibir ofertas y novedades por correo electrónico
-                            </label>
+                        <div class="field">
+                            <div class="control">
+                                <label class="checkbox">
+                                    <input type="checkbox" id="terms" name="terms" required>
+                                    Acepto los <a href="/terms" target="_blank">términos y condiciones</a>
+                                </label>
+                                <p class="help is-danger terms-error" style="display: none;">Debe aceptar los términos y condiciones para continuar.</p>
+                            </div>
                         </div>
                         
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary">Registrarse</button>
+                        <div class="field">
+                            <div class="control">
+                                <label class="checkbox">
+                                    <input type="checkbox" id="marketing_consent" name="marketing_consent" 
+                                          <?php echo isset($formData['marketing_consent']) ? 'checked' : ''; ?>>
+                                    Deseo recibir ofertas y novedades por correo electrónico
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="field">
+                            <div class="control">
+                                <button type="submit" class="button is-primary is-fullwidth">
+                                    <span class="icon">
+                                        <i class="fas fa-user-plus"></i>
+                                    </span>
+                                    <span>Registrarse</span>
+                                </button>
+                            </div>
                         </div>
                     </form>
                     
                     <hr>
                     
-                    <div class="text-center">
-                        <p>¿Ya tiene cuenta? <a href="/login.php" class="text-decoration-none">Iniciar Sesión</a></p>
+                    <div class="has-text-centered">
+                        <p>¿Ya tiene cuenta? <a href="/login" class="has-text-primary">Iniciar Sesión</a></p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</section>
 
 <script>
-    // Validación de formulario Bootstrap
-    (function () {
-        'use strict'
+    // Validación del formulario
+    document.addEventListener('DOMContentLoaded', function() {
+        // Para cerrar notificaciones
+        document.querySelectorAll('.notification .delete').forEach(btn => {
+            btn.addEventListener('click', () => {
+                btn.parentNode.remove();
+            });
+        });
         
-        // Fetch all the forms we want to apply custom Bootstrap validation styles to
-        var forms = document.querySelectorAll('.needs-validation')
+        // Validación de formulario
+        const form = document.getElementById('register-form');
         
-        // Loop over them and prevent submission
-        Array.prototype.slice.call(forms)
-            .forEach(function (form) {
-                form.addEventListener('submit', function (event) {
-                    if (!form.checkValidity()) {
-                        event.preventDefault()
-                        event.stopPropagation()
-                    }
-                    
-                    // Validación personalizada de coincidencia de contraseñas
-                    const password = document.getElementById('password')
-                    const confirmPassword = document.getElementById('confirm_password')
-                    
-                    if (password.value !== confirmPassword.value) {
-                        confirmPassword.setCustomValidity('Las contraseñas no coinciden')
-                        event.preventDefault()
-                        event.stopPropagation()
-                    } else {
-                        confirmPassword.setCustomValidity('')
-                    }
-                    
-                    form.classList.add('was-validated')
-                }, false)
-            })
-    })()
+        form.addEventListener('submit', function(event) {
+            let isValid = true;
+            
+            // Validar nombre
+            const nombresInput = document.getElementById('nombres');
+            const nombresError = document.querySelector('.nombres-error');
+            
+            if (!nombresInput.value.trim()) {
+                nombresInput.classList.add('is-danger');
+                nombresError.style.display = 'block';
+                isValid = false;
+            } else {
+                nombresInput.classList.remove('is-danger');
+                nombresError.style.display = 'none';
+            }
+            
+            // Validar apellidos
+            const apellidosInput = document.getElementById('apellidos');
+            const apellidosError = document.querySelector('.apellidos-error');
+            
+            if (!apellidosInput.value.trim()) {
+                apellidosInput.classList.add('is-danger');
+                apellidosError.style.display = 'block';
+                isValid = false;
+            } else {
+                apellidosInput.classList.remove('is-danger');
+                apellidosError.style.display = 'none';
+            }
+            
+            // Validar email
+            const emailInput = document.getElementById('email');
+            const emailError = document.querySelector('.email-error');
+            
+            if (!emailInput.value.trim() || !validateEmail(emailInput.value)) {
+                emailInput.classList.add('is-danger');
+                emailError.style.display = 'block';
+                isValid = false;
+            } else {
+                emailInput.classList.remove('is-danger');
+                emailError.style.display = 'none';
+            }
+            
+            // Validar contraseña
+            const passwordInput = document.getElementById('password');
+            const passwordError = document.querySelector('.password-error');
+            
+            if (!passwordInput.value.trim() || passwordInput.value.length < 8) {
+                passwordInput.classList.add('is-danger');
+                passwordError.style.display = 'block';
+                isValid = false;
+            } else {
+                passwordInput.classList.remove('is-danger');
+                passwordError.style.display = 'none';
+            }
+            
+            // Validar confirmación de contraseña
+            const confirmPasswordInput = document.getElementById('confirm_password');
+            const confirmPasswordError = document.querySelector('.confirm-password-error');
+            
+            if (passwordInput.value !== confirmPasswordInput.value) {
+                confirmPasswordInput.classList.add('is-danger');
+                confirmPasswordError.style.display = 'block';
+                isValid = false;
+            } else {
+                confirmPasswordInput.classList.remove('is-danger');
+                confirmPasswordError.style.display = 'none';
+            }
+            
+            // Validar términos y condiciones
+            const termsInput = document.getElementById('terms');
+            const termsError = document.querySelector('.terms-error');
+            
+            if (!termsInput.checked) {
+                termsError.style.display = 'block';
+                isValid = false;
+            } else {
+                termsError.style.display = 'none';
+            }
+            
+            if (!isValid) {
+                event.preventDefault();
+            }
+        });
+        
+        // Función para validar email
+        function validateEmail(email) {
+            const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+            return re.test(String(email).toLowerCase());
+        }
+    });
 </script>
 
 <?php
 // Incluir footer
-include_once __DIR__ . '/../components/footer.php';
+include_once __DIR__ . '/../../views/components/footer.php';
 ?>

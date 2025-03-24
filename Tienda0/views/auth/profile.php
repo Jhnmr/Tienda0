@@ -6,7 +6,7 @@ include_once __DIR__ . '/../components/header.php';
 <div class="container mt-4">
     <div class="row">
         <div class="col-md-3">
-            <?php include __DIR__ . '/../../includes/sidebar.php'; ?>
+            <?php include __DIR__ . '/../components/sidebar.php'; ?>
         </div>
         <div class="col-md-9">
             <div class="card shadow">
@@ -113,7 +113,7 @@ include_once __DIR__ . '/../components/header.php';
                                 
                                 <div class="d-flex justify-content-between">
                                     <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-                                    <a href="/change-password.php" class="btn btn-outline-secondary">Cambiar Contraseña</a>
+                                    <a href="/changepassword.php" class="btn btn-outline-secondary">Cambiar Contraseña</a>
                                 </div>
                             </div>
                         </div>

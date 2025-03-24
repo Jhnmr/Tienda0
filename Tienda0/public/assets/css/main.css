@@ -1,0 +1,191 @@
+/* 
+ * Estilos personalizados para Tienda0
+ */
+
+/* Colores personalizados para complementar Bulma */
+:root {
+    --primary-color: #3273dc;
+    --primary-dark: #2366d1;
+    --primary-light: #5e8ee4;
+    --secondary-color: #23d160;
+    --secondary-dark: #20bc56;
+    --secondary-light: #3edb74;
+    --accent-color: #ff3860;
+    --accent-dark: #ff1447;
+    --accent-light: #ff5c7a;
+    --light-color: #f5f5f5;
+    --dark-color: #363636;
+    --text-color: #4a4a4a;
+    --text-light: #7a7a7a;
+    --border-color: #dbdbdb;
+}
+
+/* Estilo general */
+body {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+/* Espaciado y ajustes para elementos de navegación */
+.navbar {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-item img {
+    max-height: 2.5rem;
+}
+
+.cart-count {
+    background-color: var(--accent-color);
+    color: white;
+    border-radius: 50%;
+    font-size: 0.75rem;
+    padding: 0.15rem 0.4rem;
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+}
+
+/* Estilos para el footer */
+.footer {
+    padding: 3rem 1.5rem;
+    background-color: #fafafa;
+}
+
+.footer ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.footer ul li {
+    margin-bottom: 0.5rem;
+}
+
+.footer a {
+    color: var(--dark-color);
+}
+
+.footer a:hover {
+    color: var(--primary-color);
+}
+
+.social-icons a {
+    margin-right: 1rem;
+    font-size: 1.25rem;
+}
+
+/* Estilos para formularios */
+.form-error {
+    color: var(--accent-color);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+}
+
+/* Estilos para las tarjetas de productos */
+.product-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.product-card .card-content {
+    flex-grow: 1;
+}
+
+.product-card .price {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.product-card .original-price {
+    text-decoration: line-through;
+    color: var(--text-light);
+    margin-right: 0.5rem;
+}
+
+.product-card .discount {
+    background-color: var(--accent-color);
+    color: white;
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.85rem;
+}
+
+/* Badges y etiquetas */
+.badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.badge-new {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.badge-sale {
+    background-color: var(--accent-color);
+    color: white;
+}
+
+.badge-out-of-stock {
+    background-color: var(--text-light);
+    color: white;
+}
+
+/* Ajustes responsive */
+@media screen and (max-width: 768px) {
+    .column.is-one-quarter-desktop {
+        width: 50%;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .column.is-one-quarter-desktop {
+        width: 100%;
+    }
+}
+
+/* Animaciones */
+.fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Personalización de componentes Bulma */
+.button.is-primary {
+    background-color: var(--primary-color);
+}
+
+.button.is-primary:hover {
+    background-color: var(--primary-dark);
+}
+
+.notification .delete {
+    position: absolute;
+    right: 0.5rem;
+    top: 0.5rem;
+}

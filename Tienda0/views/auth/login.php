@@ -1,104 +1,155 @@
 <?php
+// Definir título de la página
+$pageTitle = 'Iniciar Sesión';
+
 // Incluir header
-include_once __DIR__ . '/../components/header.php';
+include_once __DIR__ . '/../../views/components/header.php';
 ?>
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">Iniciar Sesión</h4>
-                </div>
-                <div class="card-body">
+<section class="section">
+    <div class="container">
+        <div class="columns is-centered">
+            <div class="column is-half">
+                <div class="box">
+                    <h1 class="title has-text-centered has-text-primary">Iniciar Sesión</h1>
+                    
                     <?php if (isset($_SESSION['error_message'])): ?>
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <div class="notification is-danger is-light">
+                            <button class="delete"></button>
                             <?php 
                                 echo $_SESSION['error_message'];
                                 unset($_SESSION['error_message']);
                             ?>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     <?php endif; ?>
                     
                     <?php if (isset($_SESSION['success_message'])): ?>
-                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <div class="notification is-success is-light">
+                            <button class="delete"></button>
                             <?php 
                                 echo $_SESSION['success_message'];
                                 unset($_SESSION['success_message']);
                             ?>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     <?php endif; ?>
                     
-                    <form action="/login.php" method="POST" class="needs-validation" novalidate>
+                    <form action="/login" method="POST" id="login-form" novalidate>
                         <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
                         
-                        <div class="mb-3">
-                            <label for="email" class="form-label">Correo Electrónico</label>
-                            <input type="email" class="form-control" id="email" name="email" required>
-                            <div class="invalid-feedback">
-                                Por favor, ingrese un correo electrónico válido.
+                        <div class="field">
+                            <label class="label" for="email">Correo Electrónico</label>
+                            <div class="control has-icons-left">
+                                <input class="input" type="email" id="email" name="email" placeholder="ejemplo@correo.com" required>
+                                <span class="icon is-small is-left">
+                                    <i class="fas fa-envelope"></i>
+                                </span>
+                            </div>
+                            <p class="help is-danger email-error" style="display: none;">Por favor, ingrese un correo electrónico válido.</p>
+                        </div>
+                        
+                        <div class="field">
+                            <label class="label" for="password">Contraseña</label>
+                            <div class="control has-icons-left">
+                                <input class="input" type="password" id="password" name="password" placeholder="Su contraseña" required>
+                                <span class="icon is-small is-left">
+                                    <i class="fas fa-lock"></i>
+                                </span>
+                            </div>
+                            <p class="help is-danger password-error" style="display: none;">Por favor, ingrese su contraseña.</p>
+                        </div>
+                        
+                        <div class="field">
+                            <div class="control">
+                                <label class="checkbox">
+                                    <input type="checkbox" name="remember">
+                                    Recordarme
+                                </label>
                             </div>
                         </div>
                         
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Contraseña</label>
-                            <input type="password" class="form-control" id="password" name="password" required>
-                            <div class="invalid-feedback">
-                                Por favor, ingrese su contraseña.
+                        <div class="field">
+                            <div class="control">
+                                <button type="submit" class="button is-primary is-fullwidth">
+                                    <span class="icon">
+                                        <i class="fas fa-sign-in-alt"></i>
+                                    </span>
+                                    <span>Iniciar Sesión</span>
+                                </button>
                             </div>
-                        </div>
-                        
-                        <div class="mb-3 form-check">
-                            <input type="checkbox" class="form-check-input" id="remember" name="remember">
-                            <label class="form-check-label" for="remember">Recordarme</label>
-                        </div>
-                        
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
                         </div>
                     </form>
                     
-                    <div class="mt-3 text-center">
-                        <a href="/forgot-password.php" class="text-decoration-none">¿Olvidó su contraseña?</a>
+                    <div class="has-text-centered mt-4">
+                        <a href="/forgot-password" class="has-text-link">¿Olvidó su contraseña?</a>
                     </div>
                     
                     <hr>
                     
-                    <div class="text-center">
-                        <p>¿No tiene cuenta? <a href="/register.php" class="text-decoration-none">Regístrese aquí</a></p>
+                    <div class="has-text-centered">
+                        <p>¿No tiene cuenta? <a href="/register" class="has-text-primary">Regístrese aquí</a></p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</section>
 
 <script>
-    // Validación de formulario Bootstrap
-    (function () {
-        'use strict'
+    // Validación del formulario
+    document.addEventListener('DOMContentLoaded', function() {
+        // Para cerrar notificaciones
+        document.querySelectorAll('.notification .delete').forEach(btn => {
+            btn.addEventListener('click', () => {
+                btn.parentNode.remove();
+            });
+        });
         
-        // Fetch all the forms we want to apply custom Bootstrap validation styles to
-        var forms = document.querySelectorAll('.needs-validation')
+        // Validación de formulario
+        const form = document.getElementById('login-form');
         
-        // Loop over them and prevent submission
-        Array.prototype.slice.call(forms)
-            .forEach(function (form) {
-                form.addEventListener('submit', function (event) {
-                    if (!form.checkValidity()) {
-                        event.preventDefault()
-                        event.stopPropagation()
-                    }
-                    
-                    form.classList.add('was-validated')
-                }, false)
-            })
-    })()
+        form.addEventListener('submit', function(event) {
+            let isValid = true;
+            
+            // Validar email
+            const emailInput = document.getElementById('email');
+            const emailError = document.querySelector('.email-error');
+            
+            if (!emailInput.value.trim() || !validateEmail(emailInput.value)) {
+                emailInput.classList.add('is-danger');
+                emailError.style.display = 'block';
+                isValid = false;
+            } else {
+                emailInput.classList.remove('is-danger');
+                emailError.style.display = 'none';
+            }
+            
+            // Validar contraseña
+            const passwordInput = document.getElementById('password');
+            const passwordError = document.querySelector('.password-error');
+            
+            if (!passwordInput.value.trim()) {
+                passwordInput.classList.add('is-danger');
+                passwordError.style.display = 'block';
+                isValid = false;
+            } else {
+                passwordInput.classList.remove('is-danger');
+                passwordError.style.display = 'none';
+            }
+            
+            if (!isValid) {
+                event.preventDefault();
+            }
+        });
+        
+        // Función para validar email
+        function validateEmail(email) {
+            const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+            return re.test(String(email).toLowerCase());
+        }
+    });
 </script>
 
 <?php
 // Incluir footer
-include_once __DIR__ . '/../components/footer.php';
+include_once __DIR__ . '/../../views/components/footer.php';
 ?>

@@ -9,7 +9,7 @@ include_once __DIR__ . '/../components/header.php';
 <div class="container mt-4">
     <div class="row">
         <div class="col-md-3">
-            <?php include __DIR__ . '/../../includes/sidebar.php'; ?>
+            <?php include __DIR__ . '/../components/sidebar.php'; ?>
         </div>
         <div class="col-md-9">
             <div class="card shadow">
