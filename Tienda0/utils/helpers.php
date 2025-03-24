@@ -366,3 +366,12 @@ function isCurrentUrl($pattern) {
     
     return strpos($currentUrl, $pattern) === 0;
 }
+/**
+ * Valida un token CSRF
+ * 
+ * @param string $token Token CSRF a validar
+ * @return bool True si el token es válido, false en caso contrario
+ */
+function validateCSRFToken($token) {
+    return isset($_SESSION['csrf_token']) && $_SESSION['csrf_token'] === $token;
+}

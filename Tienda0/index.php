@@ -51,6 +51,7 @@ require_once __DIR__ . '/core/app.php';
 // Cargar funciones de ayuda
 require_once __DIR__ . '/utils/helpers.php';
 
+
 // Autocargador de clases básico
 spl_autoload_register(function ($className) {
     // Convertir namespace separadores a separadores de directorio
